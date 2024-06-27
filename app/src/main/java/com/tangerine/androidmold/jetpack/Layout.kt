@@ -62,12 +62,12 @@ fun MBox() {
     }
 }
 
-//@Preview
-//@Composable
-//fun LayoutPreview() {
-//    //Layout(type = Type.ROW)
-//    CardExample()
-//}
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun LayoutPreview() {
+    //Layout(type = Type.ROW)
+    CardExample()
+}
 
 
 @Composable
