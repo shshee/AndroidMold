@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tangerine.androidmold.AppTheme
+import com.tangerine.androidmold.theme.AppTheme
 
 @Composable
 fun ExpandableCard(onToggleBoarding: (Boolean) -> Unit, list: List<String>) {
