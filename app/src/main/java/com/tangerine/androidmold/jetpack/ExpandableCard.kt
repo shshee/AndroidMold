@@ -31,7 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.tangerine.androidmold.MyTheme
+import com.tangerine.androidmold.AppTheme
 
 @Composable
 fun ExpandableCard(onToggleBoarding: (Boolean) -> Unit, list: List<String>) {
@@ -145,7 +145,7 @@ fun MyApp(modifier: Modifier = Modifier) {
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun DarkMyAppPreview() {
-    MyTheme {
+    AppTheme {
         MyApp(Modifier.fillMaxSize())
     }
 

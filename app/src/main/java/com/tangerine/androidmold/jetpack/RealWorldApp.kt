@@ -1,5 +1,13 @@
 package com.tangerine.androidmold.jetpack
 
+import android.content.res.Configuration
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -46,18 +54,27 @@ import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSiz
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import com.tangerine.androidmold.MyTheme
+import com.tangerine.androidmold.AppTheme
 import com.tangerine.androidmold.R
 
 data class FakeData(
@@ -80,10 +97,10 @@ fun SearchBar(modifier: Modifier = Modifier) {
         leadingIcon = {
             Icon(imageVector = Icons.Default.Search, contentDescription = null)
         },
-        colors = TextFieldDefaults.colors(
-            unfocusedContainerColor = MaterialTheme.colorScheme.onSurface,
-            focusedContainerColor = MaterialTheme.colorScheme.onSurface
-        ),
+//        colors = TextFieldDefaults.colors(
+//            unfocusedContainerColor = MaterialTheme.colorScheme.onSurface,
+//            focusedContainerColor = MaterialTheme.colorScheme.onSurface
+//        ),
         placeholder = { Text(text = "Search") },
         modifier = modifier
             .fillMaxWidth()
@@ -93,6 +110,13 @@ fun SearchBar(modifier: Modifier = Modifier) {
 
 @Composable
 fun AlignYourBodyItem(data: FakeData) {
+    val infiniteTransition = rememberInfiniteTransition(label = "")
+    val rotationAnim = infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(tween(1000, easing = LinearEasing), repeatMode = RepeatMode.Reverse), label = ""
+    )
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -104,6 +128,22 @@ fun AlignYourBodyItem(data: FakeData) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .size(88.dp)
+                .drawBehind {
+                    rotate(rotationAnim.value) {
+                        drawCircle(
+                            Brush.linearGradient(
+                                listOf(
+                                    Color.Red,
+                                    Color.Magenta,
+                                    Color.Blue,
+                                    Color.Cyan,
+                                    Color.Green,
+                                    Color.Yellow
+                                )
+                            ), style = Stroke(10f)
+                        )
+                    }
+                }
                 .clip(CircleShape)
         )
         Text(
@@ -201,8 +241,14 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     }
 }
 
+enum class Tab { Home, Profile }
+
 @Composable
 private fun MyBottomNavigation(modifier: Modifier = Modifier) {
+    var currentTab by rememberSaveable {
+        mutableStateOf(Tab.Home)
+    }
+
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         modifier = modifier
@@ -217,8 +263,8 @@ private fun MyBottomNavigation(modifier: Modifier = Modifier) {
             label = {
                 Text("Home")
             },
-            selected = true,
-            onClick = {}
+            selected = currentTab == Tab.Home,
+            onClick = { currentTab = Tab.Home }
         )
         NavigationBarItem(
             icon = {
@@ -230,8 +276,8 @@ private fun MyBottomNavigation(modifier: Modifier = Modifier) {
             label = {
                 Text("Profile")
             },
-            selected = false,
-            onClick = {}
+            selected = currentTab == Tab.Profile,
+            onClick = { currentTab = Tab.Profile }
         )
     }
 }
@@ -278,7 +324,17 @@ private fun MyNavigationRail(modifier: Modifier = Modifier) {
     }
 }
 
-@PreviewScreenSizes
+@Preview(
+    device = "spec:width=411dp,height=891dp,dpi=420,isRound=false,chinSize=0dp,orientation=landscape"
+)
+@Composable
+fun RealWorldAppLSPreview() {
+    MyRealWorldApp(windowSize = currentWindowAdaptiveInfo())
+}
+
+@Preview(
+    uiMode = UI_MODE_NIGHT_YES
+)
 @Composable
 fun RealWorldAppPreview() {
     MyRealWorldApp(windowSize = currentWindowAdaptiveInfo())
@@ -294,13 +350,12 @@ fun currentWindowAdaptiveInfo(): WindowSizeClass {
 
 @Composable
 fun RealWorldPortrait() {
-    MyTheme {
+    AppTheme {
         Scaffold(bottomBar = { MyBottomNavigation() }) { padding ->
             HomeScreen(
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize()
-                    .background(Color(0xFFF5F0EE))
             )
         }
     }
@@ -308,10 +363,10 @@ fun RealWorldPortrait() {
 
 @Composable
 fun RealWorldLandscape() {
-    MaterialTheme {
+    AppTheme {
         Surface {
             Row {
-                MyNavigationRail(modifier = Modifier.background(Color(0xFFF5F0EE)))
+                MyNavigationRail()
                 HomeScreen()
             }
         }
